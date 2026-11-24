@@ -78,13 +78,35 @@ section.path>p.sub{color:var(--muted);margin:0 0 18px;max-width:36em}
 .check{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
 .check .q{font-weight:700;font-size:1.05rem;margin-bottom:12px}
 .opts{display:grid;gap:10px}
-.opt{display:block;width:100%;text-align:left;background:var(--panel2);color:var(--text);
-  border:1px solid var(--line);border-radius:12px;padding:13px 15px;font:500 .98rem/1.45 var(--sans);
-  cursor:pointer;min-height:52px}
+.check-head{display:flex;align-items:center;justify-content:space-between;gap:8px 12px;flex-wrap:wrap;margin-bottom:10px}
+.check-label{font-size:.78rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.needs{display:inline-flex;align-items:center;gap:7px;color:var(--accent-soft);font-size:.82rem;font-weight:700}
+.needs-dot{width:9px;height:9px;flex:0 0 auto;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 0 3px rgba(232,89,12,.16);animation:needspulse 1.6s ease-in-out infinite}
+@keyframes needspulse{0%,100%{box-shadow:0 0 0 3px rgba(232,89,12,.18)}50%{box-shadow:0 0 0 6px rgba(232,89,12,.04)}}
+.needs.cleared{display:none}
+.move-pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;
+  font:700 .92rem var(--sans);padding:8px 15px;border-radius:999px;margin:0 0 12px;
+  box-shadow:0 3px 10px rgba(232,89,12,.35)}
+.move-pill svg{flex:0 0 auto}
+.move-pill.gone{display:none}
+.opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--panel2);color:var(--text);
+  border:2px solid #3d3d44;border-radius:12px;padding:12px 14px;font:500 .98rem/1.45 var(--sans);
+  cursor:pointer;min-height:56px;box-shadow:0 2px 6px rgba(0,0,0,.35);
+  transition:transform .08s ease,border-color .15s ease,background .15s ease}
 .opt:hover{border-color:var(--accent)}
+.opt:active{transform:scale(.98)}
 .opt[disabled]{cursor:default;opacity:.92}
+.opt-letter{flex:0 0 auto;width:30px;height:30px;border-radius:9px;background:var(--accent);color:#fff;
+  font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center}
+.opt-text{flex:1 1 auto;min-width:0}
+.opt-ring{flex:0 0 auto;width:20px;height:20px;border-radius:50%;border:2px solid var(--muted)}
+.opt.sel{border-color:var(--accent);background:#2a1c11}
+.opt.sel .opt-ring{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 3px var(--panel2)}
 .opt.picked-good{border-color:var(--good);background:#16241a}
+.opt.picked-good .opt-ring{border-color:var(--good);background:var(--good);box-shadow:inset 0 0 0 3px #16241a}
 .opt.picked-bad{border-color:#8a6d3b;background:#241e14}
+.opt.picked-bad .opt-ring{border-color:#8a6d3b;background:#8a6d3b;box-shadow:inset 0 0 0 3px #241e14}
 .feedback{margin-top:12px;font-size:.97rem;line-height:1.55;color:#e8e2d9;display:none}
 .feedback.show{display:block}
 .feedback .hintline{color:var(--muted)}
@@ -184,6 +206,7 @@ var I18N = {
     footStudio:"Dawn Studio · Independent software.",
     reset:"Reset my progress",
     stepN:"Step", checkQ:"Your move", doneBadge:"Done ✓", notYet:"Not yet",
+    movePill:"Your move — tap one answer", checkLabel:"Check — your answer needed", needsAnswer:"Needs your answer",
     tryAgain:"Try again", hintWord:"Hint: ",
     mapStart:"Nothing lit yet. Step 1 is waiting — it takes a minute.",
     mapMid:function(d){return d+" of 6 steps lit. The boss wakes when all six are lit.";},
@@ -211,6 +234,7 @@ var I18N = {
     footStudio:"Dawn Studio · 獨立軟件。",
     reset:"重設我嘅進度",
     stepN:"第", checkQ:"輪到你", doneBadge:"完成 ✓", notYet:"未完成",
+    movePill:"輪到你 — 撳一個答案", checkLabel:"小測 — 等你作答", needsAnswer:"等你回應",
     tryAgain:"再試", hintWord:"提示：",
     mapStart:"未有燈著。第一步等緊你 — 一分鐘就得。",
     mapMid:function(d){return "已著燈 "+d+" / 6 步。六步全著，boss 就醒。";},
@@ -332,6 +356,28 @@ var bossRun = null; // {qs:[indices into BOSS], pos, score}
 function T(){ return I18N[state.lang]; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
 function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+var PILL_SVG = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3v12m0 0l-5.5-5.5M12 15l5.5-5.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>';
+function makeOpt(label, pos){
+  var btn = document.createElement("button"); btn.type="button"; btn.className="opt";
+  var letter = document.createElement("span"); letter.className="opt-letter"; letter.textContent = "ABCD".charAt(pos);
+  var txt = document.createElement("span"); txt.className="opt-text"; txt.textContent = label;
+  var ring = document.createElement("span"); ring.className="opt-ring"; ring.setAttribute("aria-hidden","true");
+  btn.appendChild(letter); btn.appendChild(txt); btn.appendChild(ring);
+  return btn;
+}
+function makeNeeds(){
+  var n = document.createElement("span"); n.className="needs";
+  var dot = document.createElement("span"); dot.className="needs-dot";
+  var txt = document.createElement("span"); txt.textContent = T().needsAnswer;
+  n.appendChild(dot); n.appendChild(txt);
+  return n;
+}
+function makePill(){
+  var p = document.createElement("div"); p.className="move-pill"; p.innerHTML = PILL_SVG;
+  var txt = document.createElement("span"); txt.textContent = T().movePill;
+  p.appendChild(txt);
+  return p;
+}
 
 function renderStatic(){
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
@@ -365,20 +411,25 @@ function renderSteps(){
     var card = document.createElement("article"); card.className = "step"+(state.steps[idx]?" done":"");
     var kick = state.lang==="zh" ? ("第 "+(idx+1)+" 步") : ("Step "+(idx+1)+" of 6");
     card.innerHTML = '<div class="kicker"><span></span><span class="badge"></span></div><h3></h3><div class="teach"></div>' +
-      '<div class="check"><div class="q"></div><div class="opts"></div><div class="feedback" role="status"></div></div>';
+      '<div class="check"><div class="check-head"><span class="check-label"></span></div><div class="q"></div><div class="pillhost"></div><div class="opts"></div><div class="feedback" role="status"></div></div>';
     card.querySelector(".kicker span").textContent = kick;
     card.querySelector(".badge").textContent = state.steps[idx] ? T().doneBadge : T().notYet;
     card.querySelector("h3").textContent = s.t[state.lang];
     card.querySelector(".teach").textContent = s.teach[state.lang];
-    card.querySelector(".q").textContent = T().checkQ+" — "+s.q[state.lang];
+    card.querySelector(".q").textContent = s.q[state.lang];
+    card.querySelector(".check-label").textContent = T().checkLabel;
+    var needsEl = makeNeeds(); card.querySelector(".check-head").appendChild(needsEl);
+    var pillEl = makePill(); card.querySelector(".pillhost").appendChild(pillEl);
+    if (state.steps[idx]){ needsEl.classList.add("cleared"); pillEl.classList.add("gone"); }
     var opts = card.querySelector(".opts"), fb = card.querySelector(".feedback");
     var order = shuffle(s.opts.map(function(_,i){return i;}));
-    order.forEach(function(oi){
-      var btn = document.createElement("button"); btn.type="button"; btn.className="opt";
-      btn.textContent = s.opts[oi][state.lang];
+    order.forEach(function(oi, pos){
+      var btn = makeOpt(s.opts[oi][state.lang], pos);
       btn.addEventListener("click", function(){
         if (state.steps[idx]) return;
+        btn.classList.add("sel"); needsEl.classList.add("cleared");
         if (oi === s.ans){
+          pillEl.classList.add("gone");
           state.steps[idx] = true; save();
           btn.classList.add("picked-good");
           fb.innerHTML = ""; fb.appendChild(document.createTextNode(s.good[state.lang]));
@@ -420,16 +471,23 @@ function renderBoss(){
     btn.addEventListener("click", startBoss); body.appendChild(btn); return;
   }
   var q = BOSS[bossRun.qs[bossRun.pos]];
+  var chead = document.createElement("div"); chead.className="check-head";
+  var clabel = document.createElement("span"); clabel.className="check-label";
+  clabel.textContent = T().qOf(bossRun.pos+1, bossRun.qs.length);
+  var bneeds = makeNeeds();
+  chead.appendChild(clabel); chead.appendChild(bneeds);
+  body.appendChild(chead);
   var head = document.createElement("div"); head.className="q"; head.style.fontWeight="700"; head.style.marginBottom="10px";
-  head.textContent = T().qOf(bossRun.pos+1, bossRun.qs.length) + " — " + q.q[state.lang];
+  head.textContent = q.q[state.lang];
   body.appendChild(head);
+  var bpill = makePill(); body.appendChild(bpill);
   var opts = document.createElement("div"); opts.className="opts"; body.appendChild(opts);
   var fb = document.createElement("div"); fb.className="feedback"; body.appendChild(fb);
   var order = shuffle(q.opts.map(function(_,i){return i;}));
-  order.forEach(function(oi){
-    var btn = document.createElement("button"); btn.type="button"; btn.className="opt";
-    btn.textContent = q.opts[oi][state.lang];
+  order.forEach(function(oi, pos){
+    var btn = makeOpt(q.opts[oi][state.lang], pos);
     btn.addEventListener("click", function(){
+      btn.classList.add("sel"); bneeds.classList.add("cleared"); bpill.classList.add("gone");
       var all = opts.querySelectorAll(".opt"); for (var j=0;j<all.length;j++) all[j].disabled = true;
       if (oi === q.ans){ btn.classList.add("picked-good"); bossRun.score++; }
       else { btn.classList.add("picked-bad"); }
