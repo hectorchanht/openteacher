@@ -37,12 +37,13 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55}
 .wrap{max-width:720px;margin:0 auto;padding:0 20px}
 a{color:var(--accent-soft)}
-header.top{display:flex;align-items:center;justify-content:space-between;padding:18px 0 6px}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.02em}
-.brand img{width:30px;height:30px}
+header.utility{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line)}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:inherit;font-weight:700;letter-spacing:.02em}
+.brand img{width:40px;height:40px}
 .brand .hall{color:var(--muted);font-weight:500;font-size:.85rem}
-.langbtn{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:999px;
-  padding:7px 14px;font:600 .85rem var(--sans);cursor:pointer;min-height:36px}
+.lang-switch{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.lang-switch button{min-width:48px;min-height:34px;padding:5px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;font:600 .88rem var(--sans)}
+.lang-switch button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
 .hero{padding:38px 0 8px;text-align:left}
 .hero .mark{width:84px;height:84px}
 .hero h1{font-size:clamp(2.4rem,9vw,3.6rem);line-height:1.05;margin:.35em 0 .25em;font-weight:800;letter-spacing:-.01em}
@@ -103,17 +104,29 @@ section.path>p.sub{color:var(--muted);margin:0 0 18px;max-width:36em}
 .chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:9px 15px;
   font-size:.95rem;display:flex;gap:9px;align-items:center;max-width:100%}
 .chip .tag{color:var(--accent-soft);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-footer{border-top:1px solid var(--line);margin-top:34px;padding:22px 0 40px;color:var(--muted);font-size:.9rem}
-footer .row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.freenote{color:var(--muted);font-size:.95rem;margin:26px 0 0}
 .reset{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:0}
-@media (max-width:640px){ .step,.boss{padding:18px} .teach{font-size:1.06rem} .node{width:56px} }
+footer{display:flex;align-items:center;justify-content:space-between;gap:20px;padding-block:26px 34px;border-top:1px solid var(--line);color:var(--muted);font-size:.875rem;margin-top:18px}
+footer p{margin:0}
+footer .links{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+.footer-legal{color:var(--muted);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px}
+.back-top{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:999px;color:var(--text);flex:0 0 auto}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){ .step,.boss{padding:18px} .teach{font-size:1.06rem} .node{width:56px}
+  header.utility{min-height:56px} footer{align-items:flex-start;flex-direction:column} }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header class="top">
-    <div class="brand"><img src="/favicon.svg" alt="">OpenTeacher <span class="hall" data-i18n="hall">· OpenSchool</span></div>
-    <button class="langbtn" id="langBtn" type="button">繁中</button>
+<div class="wrap" id="top">
+  <header class="utility">
+    <a class="brand" href="#top" aria-label="OpenTeacher home">
+      <img src="/icon-192.png" alt="OpenTeacher logo" width="40" height="40">
+      <span>OpenTeacher</span> <span class="hall" data-i18n="hall">· OpenSchool</span>
+    </a>
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="zh" aria-pressed="false">繁中</button>
+    </div>
   </header>
 
   <div class="hero">
@@ -142,11 +155,18 @@ footer .row{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
     <div class="chips" id="chips"></div>
   </section>
 
+  <p class="freenote"><span data-i18n="foot1">OpenTeacher is free — no ads, no paywall, nothing taken from the student.</span>
+    · <button class="reset" id="resetBtn" type="button" data-i18n="reset">Reset my progress</button></p>
+
   <footer>
-    <div class="row">
-      <span data-i18n="foot1">OpenTeacher is free — no ads, no paywall, nothing taken from the student.</span>
-      <span>·</span><a href="https://dawnstudio.app/blog/openteacher">OpenSchool · Dawn Studio</a>
-      <span>·</span><button class="reset" id="resetBtn" type="button" data-i18n="reset">Reset my progress</button>
+    <p data-i18n="footStudio">Dawn Studio · Independent software.</p>
+    <div class="links">
+      <a class="footer-legal" href="https://dawnstudio.app/examples">Examples</a>
+      <a class="footer-legal" href="https://dawnstudio.app/changelog">Changelog</a>
+      <a class="footer-legal" href="https://dawnstudio.app/blog">Blog</a>
+      <a class="footer-legal" href="https://dawnstudio.app/canon">Canon</a>
+      <a class="footer-legal" href="https://dawnstudio.app/privacy.html">Privacy</a>
+      <a class="back-top" href="#top" aria-label="Back to top"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 13V3M3.5 7 8 2.5 12.5 7" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sr-only">Back to top</span></a>
     </div>
   </footer>
 </div>
@@ -161,6 +181,7 @@ var I18N = {
     subjTitle:"Subjects the engine will teach",
     subjSub:"One engine, every subject. These halls are being prepared from the canon — honestly labelled until each one is truly ready. Version 1 teaches the Way itself.",
     foot1:"OpenTeacher is free — no ads, no paywall, nothing taken from the student.",
+    footStudio:"Dawn Studio · Independent software.",
     reset:"Reset my progress",
     stepN:"Step", checkQ:"Your move", doneBadge:"Done ✓", notYet:"Not yet",
     tryAgain:"Try again", hintWord:"Hint: ",
@@ -187,6 +208,7 @@ var I18N = {
     subjTitle:"引擎將會教嘅科目",
     subjSub:"一個引擎，所有科目。呢啲廳堂正由 canon 準備緊 —— 每一科真係得嗰陣先會開，而家就老實標明。第一版教嘅，係『道』本身。",
     foot1:"OpenTeacher 免費 — 冇廣告、冇收費牆、唔攞學生任何嘢。",
+    footStudio:"Dawn Studio · 獨立軟件。",
     reset:"重設我嘅進度",
     stepN:"第", checkQ:"輪到你", doneBadge:"完成 ✓", notYet:"未完成",
     tryAgain:"再試", hintWord:"提示：",
@@ -313,7 +335,8 @@ function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.rando
 
 function renderStatic(){
   document.documentElement.lang = state.lang === "zh" ? "zh-Hant" : "en";
-  document.getElementById("langBtn").textContent = state.lang === "zh" ? "EN" : "繁中";
+  var lb = document.querySelectorAll(".lang-switch button");
+  for (var j=0;j<lb.length;j++) lb[j].setAttribute("aria-pressed", lb[j].getAttribute("data-lang") === state.lang ? "true" : "false");
   var els = document.querySelectorAll("[data-i18n]");
   for (var i=0;i<els.length;i++){ var k = els[i].getAttribute("data-i18n"); if (T()[k]) els[i].innerHTML = T()[k]; }
 }
@@ -452,9 +475,13 @@ function renderSubjects(){
   });
 }
 function renderAll(){ renderStatic(); renderMap(); renderSteps(); renderBoss(); renderSubjects(); }
-document.getElementById("langBtn").addEventListener("click", function(){
-  state.lang = state.lang === "zh" ? "en" : "zh"; bossRun = null; save(); renderAll();
-});
+var langBtns = document.querySelectorAll(".lang-switch button");
+for (var li=0; li<langBtns.length; li++){
+  langBtns[li].addEventListener("click", function(){
+    var l = this.getAttribute("data-lang");
+    if (l !== state.lang){ state.lang = l; bossRun = null; save(); renderAll(); }
+  });
+}
 document.getElementById("resetBtn").addEventListener("click", function(){
   state.steps = [false,false,false,false,false,false]; state.boss = false; bossRun = null; save(); renderAll();
 });
