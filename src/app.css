@@ -11,10 +11,10 @@ body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);lin
 .wrap{max-width:720px;margin:0 auto;padding:0 20px}
 a{color:var(--accent-soft)}
 header.utility{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:18px;border-bottom:1px solid var(--line)}
-.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:inherit;font-weight:700;letter-spacing:.02em}
+.brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:inherit;font-weight:700;letter-spacing:.02em;min-width:0}
 .brand img{width:40px;height:40px}
 .brand .hall{color:var(--muted);font-weight:500;font-size:.85rem}
-.lang-switch{display:inline-flex;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
+.lang-switch{display:inline-flex;flex:0 0 auto;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--panel)}
 .lang-switch button{min-width:48px;min-height:34px;padding:5px 12px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer;font:600 .88rem var(--sans)}
 .lang-switch button[aria-pressed="true"]{background:var(--text);color:var(--bg)}
 .hero{padding:38px 0 8px;text-align:left}
@@ -108,7 +108,17 @@ footer .links{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
 .back-top{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:999px;color:var(--text);flex:0 0 auto}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:640px){ .step,.boss{padding:18px} .teach{font-size:1.06rem} .node{width:56px}
-  header.utility{min-height:56px} footer{align-items:flex-start;flex-direction:column} }
+  header.utility{min-height:56px;gap:12px} footer{align-items:flex-start;flex-direction:column}
+  /* NO STRETCH (narrow): the brand sheds its hall suffix; the toggle never moves. */
+  .brand .hall{display:none}
+  /* NO STRETCH (narrow): the map wraps inside its card at full node size —
+     no internal scroll, no squeezed nodes, nothing clips mid-glyph; all 7
+     nodes stay fully inside the card. The map's boss node also carries the
+     BossGate section's .boss class, whose padding/border/margin leak in and
+     inflate it — reset those inside the map. */
+  .map{flex-wrap:wrap;overflow-x:visible;row-gap:12px}
+  .map .node.boss{padding:0;border:0;background:none;border-radius:0;margin:0}
+  .node .lbl{overflow-wrap:break-word} }
 
 /* ---- Svelte v2 animation layer (spring-driven; collapses under reduced motion) ---- */
 .link{position:relative;overflow:hidden}
